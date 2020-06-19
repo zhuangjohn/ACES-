@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Document</title>
+  </head>
+  <body>
+    <script src="https://cdn.bootcss.com/jquery/3.4.1/jquery.min.js"></script>
+    <script src="http://www.actualchoice.club/web/johnAPI.js"></script>
+    <script src="http://www.actualchoice.club/web/WC.js"></script>
+    <script>
+      let $f = new john()
+      let href = 'http://www.baidu.com'
+      let $page = new WC(href)
+      console.log($page)
+      let data = [{ a: 23 }, { b: 24 }]
+      let tableId = 'body'
+      $f.setTable(data, tableId)
+      $f.createTable()
+
+      let opt = {
+        baiduListen: {
+          url: 'https://www.baidu.com',
+          fn: ['listDownload']
+        }
+      }
+      let taskName = 'baiduListen'
+      $page.setWebTaskConfig(opt)
+      $page.doTask(taskName)
+    </script>
+  </body>
+</html>
