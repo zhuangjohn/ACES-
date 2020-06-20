@@ -10,25 +10,39 @@
     <script src="https://cdn.bootcss.com/jquery/3.4.1/jquery.min.js"></script>
     <script src="http://www.actualchoice.club/web/johnAPI.js"></script>
     <script src="http://www.actualchoice.club/web/WC.js"></script>
+
+    <h3>测试</h3>
+    <div id="test"></div>
+    <hr />
     <script>
       let $f = new john()
-      let href = 'http://www.baidu.com'
-      let $page = new WC(href)
-      console.log($page)
-      let data = [{ a: 23 }, { b: 24 }]
-      let tableId = 'body'
-      $f.setTable(data, tableId)
-      $f.createTable()
+      let $page = new WC(location.href)
 
-      let opt = {
-        baiduListen: {
-          url: 'https://www.baidu.com',
-          fn: ['listDownload']
+      $page.pageConfig = {
+        test: /test/,
+        img:/23/
+      }
+
+      $page.getPosition()
+
+      $page.pageFn = {
+        alert: v => {
+          alert(2432)
+        },
+        hello: v => {
+          alert('hello')
         }
       }
-      let taskName = 'baiduListen'
-      $page.setWebTaskConfig(opt)
-      $page.doTask(taskName)
+      $f.faceJson($page.pageFn, (v, i, key) => {
+        $f.faceJson($page.pageConfig, (value, index, mykey) => {
+          $page.setBtn({
+            [mykey]: ['#test', '', `${key}>>`, key]
+          })
+        })
+        $page.doWhile({
+          [key]: $page.getParams(`${key}Go`)[`${key}Go`] == 1
+        })
+      })
     </script>
   </body>
 </html>
