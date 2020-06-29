@@ -1,0 +1,4 @@
+yiche:/https:\/\/dealer.bitauto.com/,
+dealers:/dealer.autohome.com.cn/,
+//太平洋汽车经销商
+pcauto:/https:\/\/price.pcauto.com.c\/shangjia\/c3\/p2.html/,

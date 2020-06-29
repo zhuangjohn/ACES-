@@ -1,0 +1,1 @@
+mapbar:/https?:\/\/poi.mapbar.com/,

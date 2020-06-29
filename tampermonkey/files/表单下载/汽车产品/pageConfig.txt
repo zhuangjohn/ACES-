@@ -1,0 +1,2 @@
+//汽车之家车型产品
+autoHomeProduct:/https?:\/\/car.autohome.com.cn\/price/,

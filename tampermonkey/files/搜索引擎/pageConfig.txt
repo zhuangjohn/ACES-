@@ -1,0 +1,15 @@
+baiduZhidao:/https?:\/\/(zhidao).baidu.com\/search/,
+baiduSearch:/https?:\/\/(www).baidu.com\/s/,
+sougouSearch:/https?:\/\/weixin.sogou.com\/weixin/,
+magiSearch:/magi.com/,
+//汽车媒体
+autoHomeSearch:/https:\/\/sou.autohome.com.cn\/zonghe/,
+souhuSearch:/http:\/\/s.auto.sohu.com\/new\/search.at/,
+dcdSearch:/https:\/\/www.dcdapp.com\/search/,
+//社区
+zhihuSearch:/https:\/\/www.zhihu.com\/search/,
+//电商
+tmallSearch:/https:\/\/list.tmall.com\/search_product.htm/,
+
+//报告
+nineItSearch:/https?:\/\/search.199it.com/,

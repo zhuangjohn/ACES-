@@ -1,0 +1,4 @@
+//大麦网
+damai:/damai.cn/,
+piaoniu:/piaoniu.com/,
+huodongxing:/huodongxing.com\/events/,
