@@ -18,7 +18,9 @@ let $page=new WC(location.href)
 //配置页面属性
 $page.pageConfig={
   default:/https?/,
-  baiduZhidao:/https?:\/\/(zhidao).baidu.com\/search/,
+  csvToJson:/www.bejson.com\/json\/col2json/,
+actualchoice:/www.actualchoice.club\/web/,
+baiduZhidao:/https?:\/\/(zhidao).baidu.com\/search/,
 baiduSearch:/https?:\/\/(www).baidu.com\/s/,
 sougouSearch:/https?:\/\/weixin.sogou.com\/weixin/,
 magiSearch:/magi.com/,
@@ -150,7 +152,37 @@ function sleepGoByTime(sleepTime, goByTimeSet,fn) {
       $f.goByTime(goByTimeSet,fn)
     })
   }
+function sougouLinkTrans(temLink) {
+    return new Promise((goto, failto) => {
+      GM_xmlhttpRequest({
+        url: temLink,
+        onload: function(res) {
+          let fun = $f.deepReg(res.responseText, /var url[\d|\D]+?url.replace\("@", ""\)/)[0]
+          eval(fun)
+          try {
+            goto(url)
+          } catch (e) {
+            let url = ''
+            goto(url)
+            failto(url)
+          }
+        }
+      })
+    })
+  }
 
+$page.setWebTaskConfig({
+    fileDownload:{
+        baidu:{
+            url:'http://www.baidu.com',
+            fn:['listDownload']
+        },
+        wangyi:{
+            url:'http://news.163.com/rank/',
+            fn:['listDownload']
+        }
+    }
+})
 $page.setCpConfig({
     baiduSearch:['wd',' '],
     sougouSearch:['query',' '],
@@ -385,6 +417,74 @@ let pageFn={
   },
     [position+'list']:v => {
     $page.getList()
+  },
+    csvToJsonsougouLink:v=> {
+    //        let href=`https://weixin.sogou.com/link?url=dn9a_-gY295K0Rci_xozVXfdMkSQTLW6cwJThYulHEtVjXrGTiVgSwDeVl5OzuLcs3XyLhXQz9UdbjEADrG7G1qXa8Fplpd99h0AiooEjEDrDUo2sO6bq8LI0iYrzxIAFRFibnFSsljiSRS57Im4GbOjJEQ-YzHpMGzJdmmgcofK-fInGGB3quy7TZv9rbnpsKlOulARizvDhSg1VR-0VE2QBSxNcwq4JWhnlWuypicqAXcP6DD3DjbhdF9K7ItCw5nQd9mts79Cy6umSSPEsg..&type=2&query=%E9%95%BF%E6%B2%99%20%E6%B1%BD%E8%BD%A6%20%E6%B4%BB%E5%8A%A8&token=21F316F582C7AF86333796BA8E3A50613337AB505EBC262B`
+    let myUrl = []
+    let temUrlList = $f.trans($f.parse($('#result').val())).url
+    let len = temUrlList.length
+    temUrlList.map((v, i) => {
+      sougouLinkTrans(v).then(url => {
+        myUrl.push([{ url: url }])
+        if ((i = len - 1)) {
+          $f.toCsv(myUrl, 'url', '[sougou链接].csv', 'johnErr')
+        }
+      })
+    })
+  },
+    csvToJsonlinkFind:v => {
+    function go(list) {
+      list.map((v, i) => {
+        list[i].mid = []
+        list.map((vv, ii) => {
+          if (v.from == vv.to) {
+            list[i].mid.push(v.from)
+            list[i].from = vv.from
+          }
+        })
+      })
+      return list
+    }
+    function linkFrom(list) {
+      list = go(list)
+      $f.toCsv(list, Object.keys(list[0]), '[json计算]_链路追寻.csv', 'johnErr')
+    }
+    linkFrom($f.parse($('#result').val()))
+  },
+    csvToJsoncross:v => {
+    let x = $f.parse($('#result').val())
+    let f = $f.trans(x)
+    function beTrue(text) {
+      if ($f.isErr(text)) {
+        text = ''
+      }
+      return text
+    }
+    let res = []
+    $f.supperMap(f[Object.keys(f)[0]], f[Object.keys(f)[1]], (v, vv, i) => {
+      v = beTrue(v)
+      vv = beTrue(vv)
+      if (v != '' && vv !== '') {
+        res.push(v + ' ' + vv)
+      }
+    })
+    $f.export('[json计算]_交叉组合.txt', JSON.stringify(res))
+  },
+    csvToJsonwechatClear:v=>{
+    let a=$f.parse($('#result').val())
+    a=JSON.stringify(a)
+    a=$f.replace(a,/(<title><\!\[CDATA\[)|(\]\]><\/title>)|(<des><\!\[CDATA\[)|(\]\]><\/des>)|(<url><\!\[CDATA\[)|(#rd\]\]><\/url>)/,'')
+    a=$f.parse(a)
+    a=$f.tranList($f.trans(a))
+    $f.toCsv(a,Object.keys(a[0]),`[json计算]_微信监测干净版${$page.time}.csv`,'johnErr')
+},
+    csvToJsontransList:v=>{
+    let a=$f.parse($('#result').val())
+    a=$f.trans(a)
+    $f.export('[json计算]_trans.txt',JSON.stringify(a))
+  },
+    actualchoicefileDownload:v=>{
+    $page.doTask('fileDownload')
   },
     autoHomeSearchcpSearch:v => {
     getCPContent('autoHomeSearch',{
@@ -816,6 +916,12 @@ let doWhileFn={
     [position + '_' +position + 'img']:$page.getParams('imgDownload').imgDownload==1,
     [position + '_' +position + 'keyword']:$page.getParams('keywordDownload'). keywordDownload==1,
     [position + '_' +position + 'list']:$page.getParams('listDownload').listDownload==1,
+    csvToJson_csvToJsonsougouLink:$page.getParams('sougouLink').sougouLink==1,
+    csvToJson_csvToJsonlinkFind:$page.getParams('linFind').linFind==1,
+    csvToJson_csvToJsoncross:$page.getParams('cross').cross==1,
+    csvToJson_csvToJsonwechatClear:$page.getParams('wechatClear').wechatClear==1,
+    csvToJson_csvToJsontransList:$page.getParams('transList').transList==1,
+    actualchoice_actualchoicefileDownload:$page.getParams('taskDownFile').taskDownFile==1,
     autoHomeSearch_autoHomeSearchcpSearch:$page.getParams('cpSearch').cpSearch==1,
     baiduSearch_baiduSearchcpSearch:$page.getParams('cpSearch').cpSearch==1,
     baiduSearch_baiduSearchnewPage:$page.getParams('newPage').newPage==1,
@@ -869,6 +975,24 @@ $page.setBtn({
 })
 $page.setBtn({
   [position]:['body','','表单下载>>',position+'list']
+})
+$page.setBtn({
+  'csvToJson':['body','','将sougou临时链接转为长期链接','csvToJsonsougouLink']
+})
+$page.setBtn({
+  'csvToJson':['body','','获取from_to链式','csvToJsonlinkFind']
+})
+$page.setBtn({
+  'csvToJson':['body','','两列交叉组合','csvToJsoncross']
+})
+$page.setBtn({
+  'csvToJson':['body','','提取微信监测中的信息','csvToJsonwechatClear']
+})
+$page.setBtn({
+  'csvToJson':['body','','trans函数表格转置','csvToJsontransList']
+})
+$page.setBtn({
+  'actualchoice':['body','','获取榜单大全','actualchoicefileDownload']
 })
 $page.setBtn({
   'autoHomeSearch':['body','','cpSearch>>','autoHomeSearchcpSearch']
@@ -929,7 +1053,7 @@ $page.setBtn({
 })
 
 $f.safe(()=>{
-  $f.faceJson($f.notJson(["000defaultkeyword","000defaulthtml","000defaulthtmlScore","000defaultimg","000defaultlist","autoHomeSearchcpSearch","baiduSearchcpSearch","dcdSearchcpSearch","nineItSearchcpSearch","sougouSearchcpSearch","souhuSearchcpSearch","tmallSearchcpSearch","zhihuSearchcpSearch","brandmaxMailoutMail","mapbarlist","autoHomeProductlist","dealerslist","pcautolist","yichelist","autoHomeBrandmatrixlist","souhulist","damailist","huodongxinglist","piaoniulist"],$page.pageFn),(v,i,key)=>{
+  $f.faceJson($f.notJson(["000defaultkeyword","000defaulthtml","000defaulthtmlScore","000defaultimg","000defaultlist","csvToJsonsougouLink","csvToJsonlinkFind","csvToJsoncross","csvToJsonwechatClear","csvToJsontransList","actualchoicefileDownload","autoHomeSearchcpSearch","baiduSearchcpSearch","dcdSearchcpSearch","nineItSearchcpSearch","sougouSearchcpSearch","souhuSearchcpSearch","tmallSearchcpSearch","zhihuSearchcpSearch","brandmaxMailoutMail","mapbarlist","autoHomeProductlist","dealerslist","pcautolist","yichelist","autoHomeBrandmatrixlist","souhulist","damailist","huodongxinglist","piaoniulist"],$page.pageFn),(v,i,key)=>{
     $page.setBtn({})
   })
 })

@@ -1,4 +1,4 @@
-let originPath = '/Users/zhuangzhuangwu/Documents/GitHub/cityWatcher/johnAPI/tampermonkey'
+let originPath = '/Users/zhuangzhuangwu/Documents/GitHub/ACES-/tampermonkey'
 let path=require('path')
 let runTime = new Date().getTime()
 exports.workflowConfig = {
